@@ -1,0 +1,82 @@
+name: Publish static site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare artifact
+        run: |
+          mkdir -p _site
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '_site' ! -name '.git' ! -name '.gitverse' \
+            ! -name 'README.md' ! -name '.gitignore' \
+            -exec cp -a {} _site/ \;
+          touch _site/.nojekyll
+          cp _site/index.html _site/404.html
+          rm -f _site/index.html
+          test -s _site/404.html
+          grep -q 'class="site-header"' _site/404.html
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v1.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v1.0.0
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for CDN
+        run: sleep 45
+
+      - name: Verify deployment
+        run: |
+          set -euo pipefail
+          BASE="${{ needs.deploy.outputs.page_url }}"
+          if [ -z "$BASE" ]; then
+            BASE="https://m11nik.gitverse.site"
+          fi
+          BASE="${BASE%/}"
+          for attempt in 1 2 3 4 5; do
+            CT="$(curl -fsSI "$BASE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print $2; exit}')"
+            echo "$CT" | grep -qi 'text/html' && break
+            sleep 20
+          done
+          echo "$CT" | grep -qi 'text/html' || {
+            echo "FAIL: / not served with Content-Type text/html"
+            exit 1
+          }
+          curl -fsSL "$BASE/" | grep -q 'class="site-header"' || {
+            echo "FAIL: / not serving site markup"
+            exit 1
+          }
+          curl -fsSL "$BASE/css/style.css" | grep -qE 'container|font-family|site-header' || {
+            echo "FAIL: CSS not served"
+            exit 1
+          }
+          curl -fsSL "$BASE/contacts/index.html" | grep -q 'class="site-header"' || {
+            echo "FAIL: /contacts not serving site"
+            exit 1
+          }

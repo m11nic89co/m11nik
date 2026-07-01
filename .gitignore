@@ -1,0 +1,29 @@
+# Secrets and local env
+.gitverse-pass
+.gitverse-pass.example
+.habr-env
+.habr-env.example
+.captcha-env
+.captcha-env.example
+.mail-env
+.mail-env.example
+.rkn-fias.json
+.rkn-fias.json.example
+*.local
+
+# Private development (local / Drive only — not in public repo)
+.cursor/
+.vscode/
+docs/
+scripts/
+tools/
+chrome/
+.workspace-primary
+
+# Session artifacts
+*-dump.html
+*-dump.txt
+all-text.txt
+main-texts.json
+main-screenshot.png
+chat-dump.html
