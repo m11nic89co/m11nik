@@ -27,3 +27,9 @@ all-text.txt
 main-texts.json
 main-screenshot.png
 chat-dump.html
+.server.*.log
+
+# Node / test artifacts
+node_modules/
+playwright-report/
+test-results/

@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "test": "npm run test:e2e",
+    "test:e2e": "node tests/support/run-playwright.js",
+    "test:e2e:headed": "node tests/support/run-playwright.js --headed",
+    "test:e2e:mobile": "node tests/support/run-playwright.js --project=mobile-chromium",
+    "test:seo": "node tests/support/run-playwright.js tests/e2e/site.spec.js --grep @seo"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}
