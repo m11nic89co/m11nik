@@ -78,6 +78,27 @@ test.describe("site e2e", () => {
     await expect(page.locator(".cookie-banner")).toHaveCount(0);
   });
 
+  test("favicon switches from M11 to Nik", async ({ page }) => {
+    await page.goto("/");
+
+    await expect.poll(async () => page.evaluate(() => window.__m11nikFaviconState)).toBe("M11");
+
+    const firstIcon = await page.locator('link[rel="icon"]').getAttribute("href");
+    expect(firstIcon).toContain("data:image/svg+xml");
+    const firstSvg = decodeURIComponent(firstIcon.split(",")[1]);
+    expect(firstSvg).toContain('fill="#000000"');
+    expect(firstSvg).toContain(">M11<");
+    expect(firstSvg).not.toContain(">Nik<");
+
+    await expect.poll(async () => page.evaluate(() => window.__m11nikFaviconState)).toBe("Nik");
+
+    const secondIcon = await page.locator('link[rel="icon"]').getAttribute("href");
+    const secondSvg = decodeURIComponent(secondIcon.split(",")[1]);
+    expect(secondSvg).toContain('fill="#000000"');
+    expect(secondSvg).toContain(">Nik<");
+    expect(secondSvg).not.toContain(">M11<");
+  });
+
   test("internal links and service resources are healthy @seo", async ({ page, request }) => {
     const seenPaths = new Set();
 
