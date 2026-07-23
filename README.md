@@ -14,3 +14,7 @@
 ---
 
 Публичный репозиторий статического сайта **M11Nik**. Публикация — GitVerse Pages.
+
+## Git access
+
+GitVerse remote is configured to use SSH. Tokens, passwords, private keys, and local credential files must stay outside the public repository.
