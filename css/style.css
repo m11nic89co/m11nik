@@ -67,11 +67,26 @@ a:hover {
   font-weight: 700;
   font-size: 1.25rem;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .logo span {
   color: var(--accent);
+}
+
+.logo-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1.15em;
+  margin-left: 0.12em;
+  background: var(--text);
+  vertical-align: -0.18em;
+  opacity: 1;
+}
+
+.logo-caret--hidden {
+  opacity: 0;
 }
 
 .nav {

@@ -5,6 +5,18 @@
   var nav = header.querySelector(".nav");
   if (!nav) return;
 
+  var logo = header.querySelector(".logo");
+  if (logo && !logo.querySelector(".logo-caret")) {
+    var caret = document.createElement("span");
+    caret.className = "logo-caret";
+    caret.setAttribute("aria-hidden", "true");
+    logo.appendChild(caret);
+
+    window.setInterval(function () {
+      caret.classList.toggle("logo-caret--hidden");
+    }, 530);
+  }
+
   if (!nav.id) {
     nav.id = "site-nav";
   }

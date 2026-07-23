@@ -78,25 +78,78 @@ test.describe("site e2e", () => {
     await expect(page.locator(".cookie-banner")).toHaveCount(0);
   });
 
-  test("brand icon switches from M11 to Nik", async ({ page }) => {
+  test("site logo has a typing caret after Nik", async ({ page }) => {
     await page.goto("/");
 
-    await expect.poll(async () => page.evaluate(() => window.__m11nikFaviconState)).toBe("M11");
+    const logo = page.locator(".logo");
+    const caretLocator = logo.locator(".logo-caret");
+    await expect(logo).toContainText("M11Nik");
+    await expect(logo.locator("span").first()).toHaveText("Nik");
+    await expect(caretLocator).toHaveCount(1);
 
-    const firstIcon = await page.locator('link[rel="icon"]').getAttribute("href");
-    expect(firstIcon).toContain("data:image/svg+xml");
-    const firstSvg = decodeURIComponent(firstIcon.split(",")[1]);
-    expect(firstSvg).toContain('fill="#000000"');
+    const caret = await caretLocator.evaluate((element) => {
+      const styles = window.getComputedStyle(element);
+      return {
+        backgroundColor: styles.backgroundColor,
+        display: styles.display,
+        height: styles.height,
+        marginLeft: styles.marginLeft,
+        previousText: element.previousSibling.textContent,
+        width: styles.width
+      };
+    });
+
+    expect(caret.backgroundColor).toBe("rgb(230, 237, 243)");
+    expect(caret.display).toBe("inline-block");
+    expect(parseFloat(caret.height)).toBeGreaterThan(12);
+    expect(parseFloat(caret.marginLeft)).toBeGreaterThan(0);
+    expect(caret.previousText).toBe("Nik");
+    expect(parseFloat(caret.width)).toBeGreaterThanOrEqual(1);
+    expect(parseFloat(caret.width)).toBeLessThanOrEqual(2);
+
+    await expect.poll(async () => caretLocator.evaluate((element) => element.classList.contains("logo-caret--hidden"))).toBe(false);
+    await expect.poll(async () => caretLocator.evaluate((element) => element.classList.contains("logo-caret--hidden"))).toBe(true);
+  });
+
+  test("brand icon loops from M11 to Nik", async ({ page }) => {
+    await page.goto("/");
+
+    const readIconSvg = async () => {
+      const icon = await page.locator('link[rel="icon"]').getAttribute("href");
+      expect(icon).toContain("data:image/svg+xml");
+      return decodeURIComponent(icon.split(",")[1]);
+    };
+
+    const waitForIconPart = async (part) => {
+      let matchedSvg = "";
+      await expect.poll(async () => {
+        const svg = await readIconSvg();
+        if (svg.includes(">" + part + "<")) {
+          matchedSvg = svg;
+        }
+
+        return matchedSvg;
+      }).toContain(">" + part + "<");
+      return matchedSvg;
+    };
+
+    const firstSvg = await waitForIconPart("M11");
+    expect(firstSvg).toContain('<rect width="64" height="64" fill="#000000"');
+    expect(firstSvg).toContain('fill="#ffffff"');
     expect(firstSvg).toContain(">M11<");
     expect(firstSvg).not.toContain(">Nik<");
 
-    await expect.poll(async () => page.evaluate(() => window.__m11nikFaviconState)).toBe("Nik");
-
-    const secondIcon = await page.locator('link[rel="icon"]').getAttribute("href");
-    const secondSvg = decodeURIComponent(secondIcon.split(",")[1]);
-    expect(secondSvg).toContain('fill="#000000"');
+    const secondSvg = await waitForIconPart("Nik");
+    expect(secondSvg).toContain('<rect width="64" height="64" fill="#ffffff"');
+    expect(secondSvg).toContain('fill="#58a6ff"');
     expect(secondSvg).toContain(">Nik<");
     expect(secondSvg).not.toContain(">M11<");
+
+    const thirdSvg = await waitForIconPart("M11");
+    expect(thirdSvg).toContain('<rect width="64" height="64" fill="#000000"');
+    expect(thirdSvg).toContain('fill="#ffffff"');
+    expect(thirdSvg).toContain(">M11<");
+    expect(thirdSvg).not.toContain(">Nik<");
   });
 
   test("internal links and service resources are healthy @seo", async ({ page, request }) => {

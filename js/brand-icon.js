@@ -1,12 +1,31 @@
 (function () {
   var SIZE = 64;
   var BACKGROUND = "#000000";
+  var INVERTED_BACKGROUND = "#ffffff";
+  var INVERTED_TEXT_COLOR = "#ffffff";
   var TEXT_COLOR = "#58a6ff";
   var FIRST_PART = "M11";
   var SECOND_PART = "Nik";
   var SWITCH_DELAY_MS = 1000;
+  var parts = [FIRST_PART, SECOND_PART];
+  var currentIndex = 0;
+
+  function getIconColors(text) {
+    if (text === FIRST_PART) {
+      return {
+        background: BACKGROUND,
+        text: INVERTED_TEXT_COLOR
+      };
+    }
+
+    return {
+      background: INVERTED_BACKGROUND,
+      text: TEXT_COLOR
+    };
+  }
 
   function buildIcon(text) {
+    var colors = getIconColors(text);
     var svg =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' +
       SIZE +
@@ -18,11 +37,11 @@
       '" height="' +
       SIZE +
       '" fill="' +
-      BACKGROUND +
+      colors.background +
       '"/>' +
       '<text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" ' +
       'font-family="Consolas, monospace" font-size="24" font-weight="700" fill="' +
-      TEXT_COLOR +
+      colors.text +
       '">' +
       text +
       "</text></svg>";
@@ -47,8 +66,9 @@
     window.__m11nikFaviconState = text;
   }
 
-  setFavicon(FIRST_PART);
-  window.setTimeout(function () {
-    setFavicon(SECOND_PART);
+  setFavicon(parts[currentIndex]);
+  window.setInterval(function () {
+    currentIndex = (currentIndex + 1) % parts.length;
+    setFavicon(parts[currentIndex]);
   }, SWITCH_DELAY_MS);
 })();
