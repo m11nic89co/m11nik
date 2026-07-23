@@ -2,6 +2,7 @@ const { expect, test } = require("@playwright/test");
 
 const sitemapPaths = [
   "/",
+  "/services/index.html",
   "/services/web/index.html",
   "/services/database/index.html",
   "/services/support/index.html",
@@ -31,8 +32,11 @@ test.describe("site e2e", () => {
     await page.goto("/");
 
     await page.getByRole("link", { name: "Услуги" }).click();
-    await expect(page).toHaveURL(/\/services\/web\/index\.html$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Веб-приложения");
+    await expect(page).toHaveURL(/\/services\/index\.html$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Услуги");
+    await expect(page.getByRole("link", { name: "Веб-приложения" })).toHaveAttribute("href", "./web/index.html");
+    await expect(page.getByRole("link", { name: "Базы данных" })).toHaveAttribute("href", "./database/index.html");
+    await expect(page.getByRole("link", { name: "Сопровождение ПО" })).toHaveAttribute("href", "./support/index.html");
 
     await page.getByRole("link", { name: "Контакты" }).click();
     await expect(page).toHaveURL(/\/contacts\/index\.html$/);

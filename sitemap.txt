@@ -1,4 +1,5 @@
 https://m11nik.gitverse.site/
+https://m11nik.gitverse.site/services/index.html
 https://m11nik.gitverse.site/services/web/index.html
 https://m11nik.gitverse.site/services/database/index.html
 https://m11nik.gitverse.site/services/support/index.html
