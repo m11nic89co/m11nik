@@ -78,7 +78,7 @@ test.describe("site e2e", () => {
     await expect(page.locator(".cookie-banner")).toHaveCount(0);
   });
 
-  test("favicon switches from M11 to Nik", async ({ page }) => {
+  test("brand icon switches from M11 to Nik", async ({ page }) => {
     await page.goto("/");
 
     await expect.poll(async () => page.evaluate(() => window.__m11nikFaviconState)).toBe("M11");
